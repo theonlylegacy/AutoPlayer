@@ -47,8 +47,16 @@ function Reader.new(Content)
         return Value;
     end;
 
+    function ReaderObject:GetPosition()
+        return Cursor;
+    end;
+
     function ReaderObject:Skip(Amount)
         Cursor += Amount;
+    end;
+
+    function ReaderObject:Rewind(Amount)
+        Cursor -= Amount;
     end;
 
     function ReaderObject:IsEOF()
