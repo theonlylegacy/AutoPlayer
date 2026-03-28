@@ -15,29 +15,31 @@ function Reader.new(Content)
         return Value;
     end;
 
-    function ReaderObject:ReadInt32()
-        local Value = buffer.readu32be(Buffer, Cursor);
-        
-        Cursor += 4;
+    function ReaderObject:ReadInt32() --// Shift: [b1][b2][b3][b4]
+        local Byte1 = self:ReadByte();
+        local Byte2 = self:ReadByte();
+        local Byte3 = self:ReadByte();
+        local Byte4 = self:ReadByte();
 
-        return Value;
+        return bit32.lshift(Byte1, 24) + bit32.lshift(Byte2, 16) + bit32.lshift(Byte3, 8) + Byte4;
     end;
 
-    function ReaderObject:ReadInt16()
-        local Value = buffer.readu16be(Buffer, Cursor);
-        
-        Cursor += 2;
+    function ReaderObject:ReadInt16() --// Shift: [b1][b2]
+        local Byte1 = self:ReadByte();
+        local Byte2 = self:ReadByte();
 
-        return Value;
+        return bit32.lshift(Byte1, 8) + Byte2;
     end;
 
     function ReaderObject:ReadVLQ()
         local Value = 0;
 
         while true do
-            Value = bit32.lshift(Value, 7) + bit32.band(Value, 0x7F);
+            local Byte = self:ReadByte();
 
-            if bit32.band(ReaderObject:ReadByte(), 0x80) == 0 then
+            Value = bit32.lshift(Value, 7) + bit32.band(Byte, 0x7F);
+
+            if bit32.band(Byte, 0x80) == 0 then
                 break;
             end;
         end;
